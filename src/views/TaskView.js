@@ -10,6 +10,7 @@ module.exports = {
             status: task.status,
             dateStart: moment(task.dateStart).format('YYYY-MM-DD HH:mm:ss'),
             dateFinish: moment(task.dateStart).format('YYYY-MM-DD HH:mm:ss'),
+            createdAt: moment(task.createdAt).format('YYYY-MM-DD HH:mm:ss'),
         }
     },
 

@@ -37,6 +37,22 @@ module.exports = {
         return res.status(200).json(TaskView.render(task))
     },
 
+    async taskByUser(req, res) {
+        const { id } = req.params
+
+        const user = await User.findByPk(id, {
+            include: { 
+                association : 'responsable_task'
+            }
+        })
+
+        if (!user) {
+            return res.status(400).json({ error: 'User not found' });
+        }
+
+        return res.status(200).json(user)
+    },
+
     async findTask(req, res) {
         const { id } = req.params;
 
@@ -62,33 +78,36 @@ module.exports = {
 
     async search(req, res) {
        const { 
+            description,
             responsable,
             status,
-            dateStart
+            createdAt
         } = req.body
 
-        const dateStartFormated = new Date(dateStart)
+        let order_list;
+
+        responsable.order != '' ? order_list = ['responsable', `${responsable.order}`] : null
+        status.order != '' ? order_list = ['status', `${status.order}`] : null
+        createdAt.order != '' ? order_list = ['createdAt', `${createdAt.order}`] : null
 
         const tasks = await Task.findAll({
             where: {
                 [Op.or]: [
-                    responsable != '' ? {
-                        responsable: {
-                            [Op.like]: `%${responsable}%`
+                    description.filter != '' ? {
+                        description: {
+                            [Op.like]: `%${description.filter}%`
                         },
                     } : {},
-                    status != '' ? {
+                    status.filter != '' ? {
                         status: {
-                            [Op.like]: `%${status}%`,
+                            [Op.like]: `%${status.filter}%`,
                         }
                     } : {},
-                    dateStart != '' ? {
-                        dateStart: {
-                            [Op.like]: `%${dateStartFormated}%`
-                        },
-                    } : {}
-                ]
+                ],
             },
+            order: !!order_list ? [
+                order_list
+            ] : '',
         })
 
         if (!tasks) {
@@ -96,5 +115,21 @@ module.exports = {
         }
 
         return res.status(200).json(TaskView.renderMany(tasks))
+    },
+
+    async delete(req, res) {
+        const { id } = req.params 
+
+        const task = await Task.findByPk(id)
+
+        if (!task) {
+            return res.status(400).json({ error: 'Task not found' }); 
+        }
+
+        task.destroy()
+
+        return res.status(200).json({
+            message: 'Task deleted successfully',
+        })
     }
 };

@@ -23,5 +23,23 @@ module.exports = {
         }
 
         return res.status(200).json(UserView.renderMany(user))
+    },
+
+    async delete(req, res) {
+        const { id } = req.params
+
+        const user = await User.findByPk(id)
+
+        if (!user) {
+            return res.status(400).json({ error: 'User not found'})
+        }
+
+        user.destroy({
+            truncate: true,
+        })
+
+        return res.status(200).json({
+            message: 'User deleted successfully',
+        })
     }
 }

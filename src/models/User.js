@@ -9,6 +9,13 @@ class User extends Model {
             sequelize: connection,
         })
     }
+
+    static associate(models) {
+        this.hasMany(models.Task, {
+            foreignKey: 'user_id',
+            as: 'responsable_task',
+        })
+    }
 }
 
 module.exports = User;

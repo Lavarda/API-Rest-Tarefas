@@ -10,5 +10,6 @@ user.init(connection)
 tasks.init(connection)
 
 tasks.associate(connection.models)
+user.associate(connection.models)
 
 module.exports = connection
