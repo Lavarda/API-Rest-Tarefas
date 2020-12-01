@@ -93,5 +93,5 @@ As seguintes ferramentas foram usadas na construção do projeto:
 
 Feito por Vitor Lavarda
 
-[![Linkedin Badge](https://img.shields.io/badge/-Thiago-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/vitor-lavarda-00a776177/)](https://www.linkedin.com/in/vitor-lavarda-00a776177/) 
-[![Gmail Badge](https://img.shields.io/badge/-tgmarinho@gmail.com-c14438?style=flat-square&logo=Gmail&logoColor=white&link=mailto:vitorlavarda.souza@gmail.com)](mailto:vitorlavarda.souza@gmail.com)
+[![Linkedin Badge](https://img.shields.io/badge/-Vitor-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/vitor-lavarda-00a776177/)](https://www.linkedin.com/in/vitor-lavarda-00a776177/) 
+[![Gmail Badge](https://img.shields.io/badge/-vitorlavarda.souza@gmail.com-c14438?style=flat-square&logo=Gmail&logoColor=white&link=mailto:vitorlavarda.souza@gmail.com)](mailto:vitorlavarda.souza@gmail.com)
