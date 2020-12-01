@@ -117,6 +117,32 @@ module.exports = {
         return res.status(200).json(TaskView.renderMany(tasks))
     },
 
+    async edit(req, res) {
+        const { id } = req.params
+
+        const { status, dateStart, dateFinish } = req.body
+
+        const dateStartFormated = new Date(dateStart)
+        const dateFinishFormated = new Date(dateFinish)
+
+        const task = await Task.findByPk(id)
+
+        if (!task) {
+            return res.status(400).json({ error: 'Task not found' }); 
+        }
+
+        status != "" ? task.status = status : null
+        dateStart != "" ? task.dateStart = dateStartFormated : null
+        dateFinish != "" ? task.dateFinish = dateFinishFormated : null
+
+        await task.save()
+
+        return res.status(200).json({ 
+            message: 'Taks edit successfully',
+            task_updated: TaskView.render(task)
+        })
+    },
+
     async delete(req, res) {
         const { id } = req.params 
 

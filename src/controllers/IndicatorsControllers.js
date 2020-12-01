@@ -4,12 +4,70 @@ const moment = require("moment");
 const User = require('../models/User')
 const Task = require('../models/Task')
 
+const UserView = require('../views/UserView')
+
 const IndicatorsView = require('../views/IndicatorsView')
 
 const databaseConfig = require('../database/config/config')
 const connection = new Sequelize(databaseConfig);
 
+
 module.exports = {
+    async calculatePerformance(formatedDateStart, formatedDateFinish, tasks_length) {
+        if ( formatedDateStart &&  formatedDateFinish) {
+            const tasks_period_of_time = await Task.findAll({
+                where: {
+                    dateStart: {
+                        [Op.lte]: formatedDateStart,
+                    },
+                    dateFinish: {
+                        [Op.gte]: formatedDateFinish,
+                    },
+                    status: {
+                        [Op.like]: "%Finalizado%"
+                    }
+                },
+            })
+
+            return Number(((tasks_period_of_time.length/tasks_length) * 100).toFixed(2))
+        }
+
+        return ""
+    },
+
+    async averageTasksPerUsers(users) {
+        const tasks_completed_by_user = {}
+    
+        for ( const user of users) {
+            const tasks_by_user = await User.findByPk(UserView.render(user).id, {
+                include: { 
+                    association : 'responsable_task'
+                }
+            })
+            const tasks_finished = tasks_by_user.responsable_task.filter( (task) => {
+                return task.status == "Finalizado"
+            })
+            const name_user = UserView.render(user).name 
+            const length_tasks = tasks_finished.length
+            
+            tasks_completed_by_user[name_user] = length_tasks
+        }
+    
+        return tasks_completed_by_user
+    },
+
+    async numberOfTasksCompleteds() {
+        const tasks_completed = await Task.findAll({
+            where: {
+                status: {
+                    [Op.like]: "%Finalizado%"
+                }
+            }
+        })
+
+        return tasks_completed.length
+    },
+
     async show(req, res) {
         const { dateStart, dateFinish } = req.body
 
@@ -18,7 +76,6 @@ module.exports = {
 
         const users = await User.findAll()
         const tasks = await Task.findAll()
-
 
         let average_time = {
             tasks_open_and_doing: '',
@@ -60,7 +117,7 @@ module.exports = {
         })
 
 
-        const query = await connection.query("SELECT AVG(TIME_TO_DAYS(TIMEDIFF(task.dateStart, t.dateFinish))) FROM tasks t", { type: QueryTypes.SELECT });
+        const query = await connection.query("SELECT AVG((TIMEDIFF(date_finish, date_start))) / 86400 FROM tasks WHERE status='Aberto';", { type: QueryTypes.SELECT });
         console.log("query", query)
 
         // console.log("TESTE ABERT - FAZENDO", tasks_open_and_doing.length, tasks_doing_and_finishing.length)
@@ -85,40 +142,17 @@ module.exports = {
         //     }
 
         // })
+        
+        const performance = await module.exports.calculatePerformance(formatedDateStart, formatedDateFinish, tasks.length)
 
-        let performance;
+        const tasks_completed = await module.exports.numberOfTasksCompleteds()
 
-        if ( formatedDateStart && formatedDateFinish ) {
-            const tasks_period_of_time = await Task.findAll({
-                where: {
-                    dateStart: {
-                        [Op.lte]: formatedDateStart,
-                    },
-                    dateFinish: {
-                        [Op.gte]: formatedDateFinish,
-                    }
-                },
-            })
-
-            performance =  Number(((tasks_period_of_time.length/tasks.length) * 100).toFixed(2))
-        }
-
-        const tasks_completed = await Task.findAll({
-            where: {
-                status: {
-                    [Op.like]: "%Finalizado%"
-                }
-            }
-        })
-
-        const number_tasks_completed = tasks_completed.length
-
-        const average_tasks_per_user = Math.abs((tasks.length/users.length).toFixed(2))
+        const tasks_completed_by_user = await module.exports.averageTasksPerUsers(users);
 
         const data = {
             performance,
-            tasks_completed: number_tasks_completed,
-            average_tasks_per_user,
+            tasks_completed,
+            average_tasks_per_user: tasks_completed_by_user,
             average_time,
         }
 

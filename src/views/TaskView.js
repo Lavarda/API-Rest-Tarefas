@@ -9,8 +9,7 @@ module.exports = {
             responsable: task.responsable,
             status: task.status,
             dateStart: moment(task.dateStart).format('YYYY-MM-DD HH:mm:ss'),
-            dateFinish: moment(task.dateStart).format('YYYY-MM-DD HH:mm:ss'),
-            createdAt: moment(task.createdAt).format('YYYY-MM-DD HH:mm:ss'),
+            dateFinish: moment(task.dateFinish).format('YYYY-MM-DD HH:mm:ss'),
         }
     },
 

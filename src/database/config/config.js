@@ -1,6 +1,6 @@
 module.exports = {
     dialect: 'mysql',
-    host: 'localhost',
+    host: 'host.docker.internal',
     username: 'root',
     password: 'root',
     database: 'database_desafio',

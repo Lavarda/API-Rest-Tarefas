@@ -15,6 +15,7 @@ routes.get('/tasks/search_all', TaskController.searchAll)
 routes.post('/tasks/user/:id', TaskController.taskByUser)
 routes.post('/tasks/:id', TaskController.findTask)
 routes.post('/tasks/search/filtered', TaskController.search)
+routes.post('/tasks/edit/:id', TaskController.edit)
 routes.delete('/tasks/delete/:id', TaskController.delete)
 
 routes.post('/indicators', IndicatorController.show)
