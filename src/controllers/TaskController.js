@@ -131,9 +131,9 @@ module.exports = {
             return res.status(400).json({ error: 'Task not found' }); 
         }
 
-        status != "" ? task.status = status : null
-        dateStart != "" ? task.dateStart = dateStartFormated : null
-        dateFinish != "" ? task.dateFinish = dateFinishFormated : null
+        task.status = status ? status : task.status
+        task.dateStart = dateStart ? dateStartFormated : task.dateStart
+        task.dateFinish = dateFinish ? dateFinishFormated : task.dateFinish
 
         await task.save()
 

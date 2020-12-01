@@ -68,6 +68,20 @@ module.exports = {
         return tasks_completed.length
     },
 
+    async averageTimeTasks() {
+
+        const query_average_time_open = await connection.query("SELECT AVG((TIMEDIFF(date_start, created_at))) / 240000 FROM tasks WHERE status='Aberto';", { type: QueryTypes.SELECT });
+        const tasks_open_and_doing = `${Number(Object.values(query_average_time_open[0])[0]).toFixed(2)} days`
+        
+        const query_average_time_doing = await connection.query("SELECT AVG((TIMEDIFF(date_finish, date_start))) / 240000 FROM tasks WHERE status='Fazendo';", { type: QueryTypes.SELECT });
+        const tasks_doing_and_finishing = `${Number(Object.values(query_average_time_doing[0])[0]).toFixed(2)} days` 
+
+        return {
+            tasks_open_and_doing,
+            tasks_doing_and_finishing,
+        }
+    },
+
     async show(req, res) {
         const { dateStart, dateFinish } = req.body
 
@@ -77,77 +91,10 @@ module.exports = {
         const users = await User.findAll()
         const tasks = await Task.findAll()
 
-        let average_time = {
-            tasks_open_and_doing: '',
-            tasks_doing_and_finishing: '',
-        }
-
-        let tasks_open_and_doing = await Task.findAll({
-            where: {
-                [Op.or]: [
-                    {
-                        status: {
-                            [Op.like]: '%Aberto%'
-                        },
-                    },
-                    {
-                        status: {
-                            [Op.like]: '%Fazendo%'
-                        }
-                    },
-                ]
-            }
-        })
-
-        let tasks_doing_and_finishing =await Task.findAll({
-            where: {
-                [Op.or]: [
-                    {
-                        status: {
-                            [Op.like]: '%Fazendo%'
-                        },
-                    },
-                    {
-                        status: {
-                            [Op.like]: '%Finalizado%'
-                        }
-                    },
-                ]
-            }
-        })
-
-
-        const query = await connection.query("SELECT AVG((TIMEDIFF(date_finish, date_start))) / 86400 FROM tasks WHERE status='Aberto';", { type: QueryTypes.SELECT });
-        console.log("query", query)
-
-        // console.log("TESTE ABERT - FAZENDO", tasks_open_and_doing.length, tasks_doing_and_finishing.length)
-        // console.log("Teste sequelize", teste, teste.length)
-
-        // let x = tasks.filter( (task) => {
-        //     let tasks_by_user = await User.findByPk(task.user_id, {
-        //         include: { 
-        //             association : 'responsable_task'
-        //         }
-        //     })
-
-        //     tasks_by_user.forEach( (user_task) => {
-
-        //     })
-
-
-        //     console.log('Date Start', moment(task.dateStart).isSameOrBefore(formatedDateStart), moment(task.dateFinish).isSameOrAfter(formatedDateFinish))
-        //     if ( moment(task.dateStart).isSameOrBefore(formatedDateStart) && moment(task.dateFinish).isSameOrAfter(formatedDateFinish) ) {
-        //         console.log('Task', task)
-        //         return task
-        //     }
-
-        // })
-        
         const performance = await module.exports.calculatePerformance(formatedDateStart, formatedDateFinish, tasks.length)
-
-        const tasks_completed = await module.exports.numberOfTasksCompleteds()
-
+        const tasks_completed = await module.exports.numberOfTasksCompleteds() 
         const tasks_completed_by_user = await module.exports.averageTasksPerUsers(users);
+        const average_time = await module.exports.averageTimeTasks()
 
         const data = {
             performance,

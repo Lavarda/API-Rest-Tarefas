@@ -25,6 +25,28 @@ module.exports = {
         return res.status(200).json(UserView.renderMany(user))
     },
 
+    async edit(req, res) {
+        const { id } = req.params
+
+        const { name, email } = req.body
+
+        const user = await User.findByPk(id)
+
+        if (!user) {
+            return res.status(400).json({ error: 'User not found'})
+        }
+
+        user.name = name ? name : user.name
+        user.email = email ? email : user.email
+
+        await user.save()
+
+        return res.status(200).json({
+            message: 'User edited successfully',
+            user : UserView.render(user),
+        })
+    },
+
     async delete(req, res) {
         const { id } = req.params
 

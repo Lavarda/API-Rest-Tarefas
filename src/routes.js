@@ -8,6 +8,7 @@ const routes = express.Router();
 
 routes.post('/users', UserController.create)
 routes.get('/users/list', UserController.list)
+routes.post('/users/:id/edit', UserController.edit)
 routes.delete('/users/delete/:id', UserController.delete)
 
 routes.post('/users/:user_id/tasks', TaskController.create)
