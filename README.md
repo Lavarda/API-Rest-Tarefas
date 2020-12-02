@@ -141,10 +141,10 @@ $ npm run dev
 
 * **PARAMS**
 
-   # Id do usuário que deseja editar
+   #### Id do usuário que deseja editar
   `:id`
 
-   # Dados que você deseja editar
+   #### Dados que você deseja editar
    ```json
     {
       "nome": "Fazendo",
