@@ -1,5 +1,4 @@
 const { Op, Sequelize, QueryTypes } = require("sequelize");
-const moment = require("moment");
 
 const User = require('../models/User')
 const Task = require('../models/Task')
@@ -11,10 +10,9 @@ const IndicatorsView = require('../views/IndicatorsView')
 const databaseConfig = require('../database/config/config')
 const connection = new Sequelize(databaseConfig);
 
-
 module.exports = {
     async calculatePerformance(formatedDateStart, formatedDateFinish, tasks_length) {
-        if ( formatedDateStart &&  formatedDateFinish) {
+        if ( formatedDateStart &&  formatedDateFinish ) {
             const tasks_period_of_time = await Task.findAll({
                 where: {
                     dateStart: {
@@ -91,7 +89,11 @@ module.exports = {
         const users = await User.findAll()
         const tasks = await Task.findAll()
 
-        const performance = await module.exports.calculatePerformance(formatedDateStart, formatedDateFinish, tasks.length)
+
+        let performance = ""
+        if ( dateStart != "" && dateFinish != "" ) {
+            performance = await module.exports.calculatePerformance(formatedDateStart, formatedDateFinish, tasks.length)
+        }
         const tasks_completed = await module.exports.numberOfTasksCompleteds() 
         const tasks_completed_by_user = await module.exports.averageTasksPerUsers(users);
         const average_time = await module.exports.averageTimeTasks()
@@ -103,11 +105,18 @@ module.exports = {
             average_time,
         }
 
-        if ( !data ) {
-            return res.status(400).json({ error: 'No data available'})
+        if ( !users && !tasks ) {
+            return res.status(204).json({ 
+                status: 204,
+                message: 'No data available'
+            })
         }
 
-        return res.status(200).json(IndicatorsView.render(data))
+        return res.status(200).json({ 
+            status: 200,
+            message: 'Data available',
+            value: IndicatorsView.render(data)
+        })
 
     }
 }

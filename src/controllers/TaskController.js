@@ -1,5 +1,4 @@
 const { Op } = require("sequelize");
-const moment = require('moment');
 
 const Task = require('../models/Task');
 const User = require('../models/User');
@@ -9,6 +8,7 @@ const TaskView = require('../views/TaskView')
 module.exports = {
     async create(req, res) {
         const { user_id } = req.params;
+
         const { 
             description,
             status,
@@ -16,41 +16,62 @@ module.exports = {
             dateFinish,
         } = req.body
 
-        const user = await User.findByPk(user_id);
-        
-        if (!user) {
-            return res.status(400).json({ error: 'Error to create task' });
+        if (description && status && dateStart && dateFinish) {
+            const user = await User.findByPk(user_id);
+
+            const dateStartFormated = new Date(dateStart)
+            const dateFinishFormated = new Date(dateFinish)
+    
+            const task = await Task.create({
+                description,
+                responsable: user.name,
+                status,
+                dateStart: dateStartFormated,
+                dateFinish: dateFinishFormated,
+                user_id,
+            });
+    
+            if (!task) {
+                return res.status(422).json({ 
+                    status: 422,
+                    message: 'Error to create task'
+                });
+            }
+    
+            return res.status(200).json({
+                status: 200,
+                message: 'Task created successfully',
+                value: TaskView.render(task)
+            })
+        } else {
+            return res.status(422).json({ 
+                status: 422,
+                message: 'Please fill all fields, description, status, dateStart and dateFinish',
+            });
         }
-
-        const dateStartFormated = new Date(dateStart)
-        const dateFinishFormated = new Date(dateFinish)
-
-        const task = await Task.create({
-            description,
-            responsable: user.name,
-            status,
-            dateStart: dateStartFormated,
-            dateFinish: dateFinishFormated,
-            user_id,
-        });
-
-        return res.status(200).json(TaskView.render(task))
     },
 
     async taskByUser(req, res) {
         const { id } = req.params
 
-        const user = await User.findByPk(id, {
-            include: { 
-                association : 'responsable_task'
-            }
-        })
+        if ( id ) {
+            const user = await User.findByPk(id, {
+                include: { 
+                    association : 'responsable_task'
+                }
+            })
 
-        if (!user) {
-            return res.status(400).json({ error: 'User not found' });
+            return res.status(200).json({
+                status: 200,
+                message: 'User listed successfully',
+                value: user,
+            })
+        } else {
+            return res.status(404).json({ 
+                status: 404,
+                message: 'User not found',
+            });
         }
-
-        return res.status(200).json(user)
     },
 
     async findTask(req, res) {
@@ -58,22 +79,36 @@ module.exports = {
 
         const task = await Task.findByPk(id)
 
-        if (!task) {
-            return res.status(400).json({ error: 'Task not found' }); 
+        if ( id ) {
+            return res.status(200).json({
+                status: 200,
+                message: 'Task finded successfully',
+                value: TaskView.render(task)
+            })
+        } else {
+            return res.status(404).json({ 
+                status: 404,
+                message: 'Task not found',
+            }); 
         }
-
-        return res.status(200).json(TaskView.render(task))
     },
 
     async searchAll(req, res) {
         const task = await Task.findAll()
 
         if (!task) {
-            return res.status(400).json({ error: 'Task not found' }); 
+            return res.status(200).json({ 
+                status: 200,
+                message: 'Tasks are not available',
+                value: []
+            }); 
         }
 
-
-        return res.status(200).json(TaskView.renderMany(task))
+        return res.status(200).json({
+            status: 200,
+            message: 'Tasks found successfully',
+            value: TaskView.renderMany(task)
+        })
     },
 
     async search(req, res) {
@@ -111,10 +146,18 @@ module.exports = {
         })
 
         if (!tasks) {
-            return res.status(400).json({ error: 'Task not found' }); 
+            return res.status(200).json({
+                status: 200,
+                message: 'Tasks not found',
+                value: [],
+            }); 
         }
 
-        return res.status(200).json(TaskView.renderMany(tasks))
+        return res.status(200).json({
+            status: 200,
+            message: 'Tasks found successfully',
+            value: TaskView.renderMany(tasks)
+        })
     },
 
     async edit(req, res) {
@@ -122,40 +165,49 @@ module.exports = {
 
         const { status, dateStart, dateFinish } = req.body
 
-        const dateStartFormated = new Date(dateStart)
-        const dateFinishFormated = new Date(dateFinish)
+        if ( status || dateStart || dateFinish ) { 
+            const dateStartFormated = new Date(dateStart)
+            const dateFinishFormated = new Date(dateFinish)
+    
+            const task = await Task.findByPk(id)
 
-        const task = await Task.findByPk(id)
-
-        if (!task) {
-            return res.status(400).json({ error: 'Task not found' }); 
+            task.status = status ? status : task.status
+            task.dateStart = dateStart ? dateStartFormated : task.dateStart
+            task.dateFinish = dateFinish ? dateFinishFormated : task.dateFinish
+    
+            await task.save()
+    
+            return res.status(200).json({ 
+                message: 'Taks edit successfully',
+                status: 200,
+                value: TaskView.render(task)
+            })
+        } else {
+            return res.status(422).json({ 
+                status: 422,
+                message: 'Please fill field status or dateStart or DateFinish',
+            }); 
         }
-
-        task.status = status ? status : task.status
-        task.dateStart = dateStart ? dateStartFormated : task.dateStart
-        task.dateFinish = dateFinish ? dateFinishFormated : task.dateFinish
-
-        await task.save()
-
-        return res.status(200).json({ 
-            message: 'Taks edit successfully',
-            task_updated: TaskView.render(task)
-        })
     },
 
     async delete(req, res) {
         const { id } = req.params 
 
-        const task = await Task.findByPk(id)
-
-        if (!task) {
-            return res.status(400).json({ error: 'Task not found' }); 
+        if ( id ) {
+            const task = await Task.findByPk(id)
+    
+            task.destroy()
+    
+            return res.status(200).json({
+                status: 200,
+                message: 'Task deleted successfully',
+                value: TaskView.render(task)
+            })
+        } else {
+            return res.status(404).json({
+                status: 404,
+                message: 'Task not found'
+            }); 
         }
-
-        task.destroy()
-
-        return res.status(200).json({
-            message: 'Task deleted successfully',
-        })
     }
 };

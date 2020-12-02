@@ -25,7 +25,7 @@
 ### Pré-requisitos
 
 Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
-[Git](https://git-scm.com), [Node.js](https://nodejs.org/en/), [Docker](https://www.docker.com/get-started). 
+[Git](https://git-scm.com), [Node.js 12.19.0](https://nodejs.org/en/), [Docker 19.03.13](https://www.docker.com/get-started). 
 
 ### Rodando a API com docker
 
