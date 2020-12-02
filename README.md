@@ -179,7 +179,7 @@ $ npm run dev
 
 * **PARAMS**
 
-   # Id do usuário que deseja deletar
+   #### Id do usuário que deseja deletar
   `:id`
 
 * **Method**
@@ -209,7 +209,7 @@ $ npm run dev
 
 * **PARAMS**
 
-   # Id do usuário que deseja atrelar a tarefa criada
+   #### Id do usuário que deseja atrelar a tarefa criada
   `:user_id`
 
 * **Method**
@@ -283,7 +283,7 @@ $ npm run dev
 
 * **PARAMS**
 
-   # Id do usuário que deseja pesquisar as tarefas
+   #### Id do usuário que deseja pesquisar as tarefas
   `:id`
 
 * **Method**
@@ -327,7 +327,7 @@ $ npm run dev
 
 * **PARAMS**
 
-   # Id da tarefa que deseja pesquisar
+   #### Id da tarefa que deseja pesquisar
   `:id`
 
 * **Method**
@@ -361,7 +361,7 @@ $ npm run dev
 
 * **PARAMS**
 
-    # Ordenar filtrando descrição ou status e seleciando ordem crescente ou decrescente de responsable, status ou createdAt
+    #### Ordenar filtrando descrição ou status e seleciando ordem crescente ou decrescente de responsable, status ou createdAt
 
   ```json
     {
@@ -423,11 +423,10 @@ $ npm run dev
 
 * **PARAMS**
 
-   # Id da tarefa que deseja editar
+   #### Id da tarefa que deseja editar
   `:id`
 
-
-  # Dados que você deseja editar
+  #### Dados que você deseja editar
   ```json
     {
       "status": "Fazendo",
@@ -466,7 +465,7 @@ $ npm run dev
 
 * **PARAMS**
 
-   # Id da tarefa que deseja editar
+   #### Id da tarefa que deseja editar
   `:id`
 
 * **Method**
@@ -500,7 +499,7 @@ $ npm run dev
 
 * **PARAMS**
 
-  # Parametros para filtrar o desempenho dos usuários
+  #### Parametros para filtrar o desempenho dos usuários
   ```json
     {
       "dateStart": "2020-11-29 21:00:00",
